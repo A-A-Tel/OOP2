@@ -8,6 +8,8 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 public class MyDodo extends Dodo
 {
 
+    private int numOfGrains = 0;
+
     public MyDodo() {
         this ( EAST );
     }
@@ -79,8 +81,55 @@ public class MyDodo extends Dodo
      * 
      */
     public void gotoEgg() {
-        move();
+        while (!onEgg() && canMove()) step();
 
+    }
+
+    public void walkToWorldEdge() {
+        while (canMove()) step();
+    }
+
+    public void turn180() {
+        turnLeft();
+        turnLeft();
+    }
+
+    public void goBack() {
+        turn180();
+        walkToWorldEdge();
+        turn180();
+    }
+
+    public void climbFence() {
+        turnLeft();
+        move();
+        turnRight();
+        move();
+        move();
+        turnRight();
+        move();
+        turnLeft();
+    }
+
+    public void walkEdgeClimb() {
+
+        while (!borderAhead()) {
+            if (fenceAhead()) climbFence();
+            move();
+        }
+    }
+
+    public void pickGrains() {
+
+        while (canMove() || onGrain()) {
+            if (onGrain()) {
+                pickUpGrain();
+                numOfGrains++;
+                System.out.println(getX() + " " + getY());
+            }
+            move();
+        }
+        System.out.println(numOfGrains);
     }
     
      /**
@@ -93,16 +142,12 @@ public class MyDodo extends Dodo
      *                  false else otherwise
      */
     public boolean grainAhead() {
-        // D
-        if ( onGrain() ){
-            // Dodo goes back to initial situation before returning value
-            // E
-            return true;
-        } else {
-            // Dodo goes back to initial situation before returning value
-            // F
-            return false;
-        }
+        move();
+        boolean grainAhead = onGrain();
+        turn180();
+        move();
+        turn180();
+        return grainAhead;
     } 
     
     /**
@@ -122,6 +167,26 @@ public class MyDodo extends Dodo
         }else{
             return true;
         }
-    }  
+    }
+
+    public void moveBack() {
+        turn180();
+        if (canMove()) step();
+        turn180();
+    }
+
+    public void manageNestsAhead() {
+
+        while (canMove() || onNest()) {
+
+            if (fenceAhead()) climbFence();
+
+            if (onNest() && !onEgg()) {
+                layEgg();
+                return;
+            }
+            move();
+        }
+    }
     
 }
